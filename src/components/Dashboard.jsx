@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getCurrentUser, logOut, getUserRole, getUserData } from '../firebase';
 import Navbar from './Navbar.jsx';
+import DashboardUsers from './DashboardUsers.jsx';
 
 function Dashboard() {
   const [user, setUser] = useState(null);
@@ -40,7 +41,7 @@ function Dashboard() {
     <div className="dashboard-container">
       <Navbar user={user} userRole={userRole} userData={userData} />
       <main className="dashboard-main">
-        <div className="dashboard-header">
+        {/* <div className="dashboard-header">
           <h2>Welcome to Your Dashboard</h2>
           <p>You are logged in as: <strong>{userRole || 'user'}</strong></p>
         </div>
@@ -89,7 +90,9 @@ function Dashboard() {
               </div>
             </div>
           )}
-        </div>
+        </div> */}
+        {/* All public users list */}
+        <DashboardUsers />
       </main>
     </div>
   );

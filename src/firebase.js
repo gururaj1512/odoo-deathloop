@@ -96,3 +96,5 @@ export const setUserProfile = async (uid, profile) => {
     return false;
   }
 }; 
+
+export { db }; 
