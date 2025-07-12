@@ -3,13 +3,11 @@ import { useParams } from 'react-router-dom';
 import { doc, getDoc, setDoc, updateDoc, onSnapshot } from 'firebase/firestore';
 import { db, getCurrentUser } from '../firebase';
 
-const HAND_FONT = `'Comic Neue', 'Chalkboard SE', 'Comic Sans MS', cursive`;
-
 function getChatId(uid1, uid2) {
   return [uid1, uid2].sort().join('_');
 }
 
-export default function Chat() {
+function Chat() {
   const { friendId } = useParams();
   const [friend, setFriend] = useState(null);
   const [messages, setMessages] = useState([]);
@@ -84,53 +82,122 @@ export default function Chat() {
     }, 100);
   };
 
-  if (!currentUser) return <div style={{color: 'white', textAlign: 'center', marginTop: 40, fontFamily: HAND_FONT, fontSize: 28}}>Please log in.</div>;
-  if (loading) return <div style={{color: 'white', textAlign: 'center', marginTop: 40, fontFamily: HAND_FONT, fontSize: 28}}>Loading...</div>;
+  if (!currentUser) return <div style={{color: '#333', textAlign: 'center', marginTop: 40, fontSize: 22}}>Please log in.</div>;
+  if (loading) return <div style={{color: '#333', textAlign: 'center', marginTop: 40, fontSize: 22}}>Loading...</div>;
 
   return (
-    <div style={{background: '#111', minHeight: '100vh', padding: '0', fontFamily: HAND_FONT, display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
-      <div style={{width: '100%', maxWidth: 600, margin: '40px auto 0 auto', border: '3px solid #fff', borderRadius: 32, background: 'rgba(24,28,32,0.95)', boxShadow: '0 4px 32px rgba(255,255,255,0.08)', padding: 0, overflow: 'hidden'}}>
+    <div style={{
+      background: 'linear-gradient(120deg, #f8fafc 0%, #f3e8ff 100%)',
+      minHeight: '100vh',
+      padding: '0',
+      fontFamily: 'Inter, Segoe UI, Arial, sans-serif',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+    }}>
+      <div style={{
+        width: '100%',
+        maxWidth: 520,
+        margin: '48px auto 0 auto',
+        borderRadius: 28,
+        background: '#fff',
+        boxShadow: '0 4px 32px rgba(162,89,236,0.10)',
+        padding: 0,
+        overflow: 'hidden',
+        display: 'flex',
+        flexDirection: 'column',
+        minHeight: 600,
+      }}>
         {/* Header */}
-        <div style={{display: 'flex', alignItems: 'center', gap: 18, background: 'transparent', borderBottom: '2px solid #fff', padding: '18px 28px'}}>
-          <div style={{width: 60, height: 60, border: '2.5px solid #fff', borderRadius: '50%', overflow: 'hidden', background: '#222', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 18,
+          background: 'transparent',
+          borderBottom: '1.5px solid #ede9fe',
+          padding: '22px 32px 18px 32px',
+        }}>
+          <div style={{width: 56, height: 56, border: '2.5px solid #ede9fe', borderRadius: '50%', overflow: 'hidden', background: '#f3e8ff', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
             <img src={friend?.photoURL || 'https://randomuser.me/api/portraits/men/32.jpg'} alt="Profile" style={{width: '100%', height: '100%', objectFit: 'cover'}} />
           </div>
-          <div style={{fontSize: 28, fontWeight: 700, color: 'white', fontFamily: HAND_FONT}}>{friend?.username || 'Friend'}</div>
+          <div style={{fontSize: 22, fontWeight: 700, color: '#222', fontFamily: 'inherit'}}>{friend?.username || 'Friend'}</div>
         </div>
         {/* Chat messages */}
-        <div ref={chatRef} style={{height: 420, overflowY: 'auto', background: 'transparent', padding: '28px 18px', display: 'flex', flexDirection: 'column', gap: 18}}>
+        <div ref={chatRef} style={{
+          height: 400,
+          overflowY: 'auto',
+          background: 'transparent',
+          padding: '32px 18px',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 18,
+        }}>
           {messages.map((msg, i) => (
             <div key={i} style={{
               alignSelf: msg.sender === currentUser.uid ? 'flex-end' : 'flex-start',
-              background: msg.sender === currentUser.uid ? 'rgba(162,89,236,0.18)' : 'rgba(255,255,255,0.10)',
-              color: 'white',
-              border: '2px solid #fff',
+              background: msg.sender === currentUser.uid ? 'linear-gradient(90deg, #6366f1 0%, #2563eb 100%)' : '#f3f4f6',
+              color: msg.sender === currentUser.uid ? 'white' : '#222',
+              border: msg.sender === currentUser.uid ? 'none' : '1.5px solid #ede9fe',
               borderRadius: 18,
               maxWidth: '70%',
               padding: '12px 20px',
-              fontSize: 20,
-              fontFamily: HAND_FONT,
-              boxShadow: '0 2px 8px rgba(162,89,236,0.10)',
+              fontSize: 17,
+              fontFamily: 'inherit',
+              boxShadow: msg.sender === currentUser.uid ? '0 2px 8px #6366f133' : '0 2px 8px #ede9fe33',
               marginLeft: msg.sender === currentUser.uid ? 40 : 0,
               marginRight: msg.sender === currentUser.uid ? 0 : 40,
               textAlign: 'left',
+              wordBreak: 'break-word',
             }}>
               {msg.text}
             </div>
           ))}
         </div>
         {/* Input */}
-        <div style={{display: 'flex', alignItems: 'center', borderTop: '2px solid #fff', padding: '18px 18px', background: 'transparent'}}>
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          borderTop: '1.5px solid #ede9fe',
+          padding: '18px 18px',
+          background: '#f8fafc',
+        }}>
           <input
             value={input}
             onChange={e => setInput(e.target.value)}
             onKeyDown={e => { if (e.key === 'Enter') sendMessage(); }}
             placeholder="Type a message..."
-            style={{flex: 1, fontSize: 20, borderRadius: 14, border: '2px solid #fff', background: 'transparent', color: 'white', padding: '10px 18px', fontFamily: HAND_FONT, outline: 'none', marginRight: 12}}
+            style={{
+              flex: 1,
+              fontSize: 17,
+              borderRadius: 14,
+              border: '1.5px solid #ede9fe',
+              background: 'white',
+              color: '#222',
+              padding: '10px 18px',
+              fontFamily: 'inherit',
+              outline: 'none',
+              marginRight: 12,
+              boxShadow: '0 1px 4px #ede9fe33',
+            }}
           />
-          <button onClick={sendMessage} style={{background: 'none', border: '2.5px solid #a259ec', color: '#a259ec', fontWeight: 800, fontSize: 22, fontFamily: HAND_FONT, borderRadius: 12, padding: '8px 24px', cursor: 'pointer', transition: 'background 0.2s', outline: 'none', boxShadow: '0 2px 8px #a259ec33'}} onMouseOver={e => e.target.style.background='#a259ec22'} onMouseOut={e => e.target.style.background='none'}>Send</button>
+          <button onClick={sendMessage} style={{
+            background: 'linear-gradient(90deg, #2563eb 0%, #6366f1 100%)',
+            color: 'white',
+            border: 'none',
+            borderRadius: 12,
+            fontWeight: 700,
+            fontSize: 17,
+            padding: '10px 28px',
+            cursor: 'pointer',
+            transition: 'background 0.2s',
+            outline: 'none',
+            boxShadow: '0 2px 8px #6366f133',
+          }}>Send</button>
         </div>
       </div>
     </div>
   );
-} 
+}
+
+export default Chat; 

@@ -76,7 +76,7 @@ const ChatBot = () => {
           >
             {/* Header */}
             <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100 bg-blue-600 rounded-t-2xl">
-              <span className="text-white font-bold text-lg">Skill Mentor Chatbot</span>
+              <span className="text-white font-bold text-lg">AI Chatbot</span>
               <button onClick={() => setOpen(false)} className="text-white hover:text-blue-200 p-1 rounded-full">
                 <CloseIcon />
               </button>

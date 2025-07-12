@@ -6,12 +6,13 @@ import GroupsOutlinedIcon from '@mui/icons-material/GroupsOutlined';
 import ChatBubbleOutlineOutlinedIcon from '@mui/icons-material/ChatBubbleOutlineOutlined';
 import AdminPanelSettingsOutlinedIcon from '@mui/icons-material/AdminPanelSettingsOutlined';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
+import LightbulbOutlinedIcon from '@mui/icons-material/LightbulbOutlined';
 
 const navLinks = [
   { label: 'Home', to: '/dashboard', icon: <HomeOutlinedIcon fontSize="small" /> },
   { label: 'Browse', to: '/dashboard', icon: <GroupsOutlinedIcon fontSize="small" /> },
   { label: 'Requests', to: '/my-requests', icon: <ChatBubbleOutlineOutlinedIcon fontSize="small" /> },
-  { label: 'Friends', to: '/friends', icon: <ChatBubbleOutlineOutlinedIcon fontSize="small" /> },
+  { label: 'Friends', to: '/friends', icon: <LightbulbOutlinedIcon fontSize="small" /> },
   { label: 'AI Skill Suggest', to: '/ai-skill-suggest', icon: <AutoAwesomeIcon fontSize="small" /> },
   { label: 'Roadmap', to: '/roadmap', icon: <AutoAwesomeIcon fontSize="small" /> },
   { label: 'Admin', to: '/admin', icon: <AdminPanelSettingsOutlinedIcon fontSize="small" /> },

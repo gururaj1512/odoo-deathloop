@@ -1,20 +1,39 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { doc, getDoc, updateDoc, arrayUnion } from 'firebase/firestore';
-import { db } from '../firebase';
-import { getCurrentUser } from '../firebase';
+import { db, getCurrentUser } from '../firebase';
+import { motion, AnimatePresence } from 'framer-motion';
+import StarIcon from '@mui/icons-material/Star';
+import StarBorderIcon from '@mui/icons-material/StarBorder';
+import SwapHorizIcon from '@mui/icons-material/SwapHoriz';
+import LocationOnIcon from '@mui/icons-material/LocationOn';
+import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
+import AccessTimeIcon from '@mui/icons-material/AccessTime';
+import SchoolIcon from '@mui/icons-material/School';
+import PsychologyIcon from '@mui/icons-material/Psychology';
+import PersonIcon from '@mui/icons-material/Person';
+import CloseIcon from '@mui/icons-material/Close';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import RateReviewIcon from '@mui/icons-material/RateReview';
+import SendIcon from '@mui/icons-material/Send';
 
-function StarRating({ value, onChange, max = 5, readOnly = false }) {
+function StarRating({ value, onChange, max = 5, readOnly = false, size = 'large' }) {
   return (
-    <div style={{display: 'flex', gap: 4, fontSize: 32, cursor: readOnly ? 'default' : 'pointer'}}>
+    <div className="flex gap-1">
       {[...Array(max)].map((_, i) => (
-        <span
+        <motion.div
           key={i}
-          style={{color: i < value ? '#a259ec' : '#e0e0e0', transition: 'color 0.2s'}}
+          whileHover={!readOnly ? { scale: 1.1 } : {}}
+          whileTap={!readOnly ? { scale: 0.95 } : {}}
+          className={`cursor-${readOnly ? 'default' : 'pointer'} transition-colors duration-200`}
           onClick={() => !readOnly && onChange(i + 1)}
         >
-          ★
-        </span>
+          {i < value ? (
+            <StarIcon className="text-yellow-400" fontSize={size} />
+          ) : (
+            <StarBorderIcon className="text-slate-300" fontSize={size} />
+          )}
+        </motion.div>
       ))}
     </div>
   );
@@ -22,6 +41,7 @@ function StarRating({ value, onChange, max = 5, readOnly = false }) {
 
 function SkillSwap() {
   const { userId } = useParams();
+  const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [rating, setRating] = useState(0);
@@ -36,6 +56,20 @@ function SkillSwap() {
   const [requestLoading, setRequestLoading] = useState(false);
   const [currentUserProfile, setCurrentUserProfile] = useState(null);
   const currentUser = getCurrentUser();
+
+  // Helper functions
+  const getNumSwaps = (user) => {
+    if (!user.requests) return 0;
+    return user.requests.filter(r => r.status === 'Accepted').length;
+  };
+
+  const getJoinDate = (user) => {
+    return user.createdAt ? new Date(user.createdAt).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    }) : null;
+  };
 
   useEffect(() => {
     async function fetchUser() {
@@ -58,7 +92,6 @@ function SkillSwap() {
     fetchUser();
   }, [userId]);
 
-  // Fetch logged-in user's profile for skillsOffered
   useEffect(() => {
     async function fetchCurrentUserProfile() {
       if (!currentUser) return;
@@ -91,7 +124,6 @@ function SkillSwap() {
     setSubmitting(false);
   };
 
-  // Handle skill swap request submit
   const handleRequestSubmit = async (e) => {
     e.preventDefault();
     if (!requestOfferedSkill || !requestWantedSkill) return;
@@ -114,191 +146,323 @@ function SkillSwap() {
     setRequestOfferedSkill('');
     setRequestWantedSkill('');
     setRequestMessage('');
-    alert('Request sent!');
+    alert('Request sent successfully!');
   };
 
-  if (loading) return <div style={{color: '#a259ec', textAlign: 'center', marginTop: 40, fontSize: 24}}>Loading...</div>;
-  if (!user) return <div style={{color: '#a259ec', textAlign: 'center', marginTop: 40, fontSize: 24}}>User not found.</div>;
+  if (loading) return (
+    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
+      <div className="text-slate-700 text-2xl font-semibold animate-pulse">Loading...</div>
+    </div>
+  );
+
+  if (!user) return (
+    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
+      <div className="text-slate-700 text-2xl font-semibold">User not found.</div>
+    </div>
+  );
+
+  const swaps = getNumSwaps(user);
+  const joinDate = getJoinDate(user);
 
   return (
-    <div style={{
-      background: 'linear-gradient(120deg, #e0e7ff 0%, #a259ec 100%)',
-      minHeight: '100vh',
-      padding: '48px 0',
-      fontFamily: 'Inter, Segoe UI, Arial, sans-serif',
-      color: '#222',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-    }}>
-      <div style={{
-        maxWidth: 1000,
-        width: '100%',
-        margin: '0 auto',
-        borderRadius: 36,
-        background: 'linear-gradient(120deg, #fff 60%, #ede9fe 100%)',
-        boxShadow: '0 8px 40px rgba(162,89,236,0.10)',
-        padding: 56,
-        position: 'relative',
-        display: 'flex',
-        gap: 56,
-        alignItems: 'center',
-      }}>
-        <div style={{flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%'}}>
-          <div style={{width: 240, height: 240, border: '4px solid #a259ec', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', background: '#ede9fe', boxShadow: '0 4px 24px rgba(162,89,236,0.10)'}}>
-            <img src={user.photoURL || 'https://randomuser.me/api/portraits/men/32.jpg'} alt="Profile" style={{width: '100%', height: '100%', objectFit: 'cover'}} />
-          </div>
-        </div>
-        <div style={{flex: 1, minWidth: 0}}>
-          <div style={{fontSize: 40, fontWeight: 800, marginBottom: 28, color: '#a259ec', textAlign: 'center', letterSpacing: 1}}>{user.username || 'No Name'}</div>
-          <div style={{marginBottom: 32, textAlign: 'center'}}>
-            <div style={{fontSize: 22, marginBottom: 10, color: '#6d28d9', fontWeight: 600}}>Skills Offered</div>
-            <div style={{display: 'flex', gap: 14, flexWrap: 'wrap', justifyContent: 'center'}}>
-              {user.skillsOffered && user.skillsOffered.length > 0 ? user.skillsOffered.map(skill => (
-                <span key={skill} style={{display: 'inline-block', background: 'linear-gradient(90deg, #ede9fe 0%, #fff 100%)', border: '2px solid #a259ec', borderRadius: 20, padding: '6px 20px', color: '#6d28d9', fontSize: 18, fontWeight: 700, boxShadow: '0 2px 8px rgba(162,89,236,0.08)'}}>{skill}</span>
-              )) : <span style={{color: '#a259ec'}}>None</span>}
-            </div>
-          </div>
-          <div style={{marginBottom: 32, textAlign: 'center'}}>
-            <div style={{fontSize: 22, marginBottom: 10, color: '#6d28d9', fontWeight: 600}}>Skills Wanted</div>
-            <div style={{display: 'flex', gap: 14, flexWrap: 'wrap', justifyContent: 'center'}}>
-              {user.skillsWanted && user.skillsWanted.length > 0 ? user.skillsWanted.map(skill => (
-                <span key={skill} style={{display: 'inline-block', background: 'linear-gradient(90deg, #f3e8ff 0%, #fff 100%)', border: '2px solid #a259ec', borderRadius: 20, padding: '6px 20px', color: '#a259ec', fontSize: 18, fontWeight: 700, boxShadow: '0 2px 8px rgba(162,89,236,0.08)'}}>{skill}</span>
-              )) : <span style={{color: '#a259ec'}}>None</span>}
-            </div>
-          </div>
-          <div style={{marginTop: 40, fontSize: 24, color: '#6d28d9', textAlign: 'center', fontWeight: 700}}>Rating and Feedback</div>
-          <div style={{margin: '18px 0', textAlign: 'center'}}>
-            <StarRating value={avgRating} max={5} readOnly />
-            <div style={{fontSize: 19, color: '#a259ec', fontWeight: 600}}>{ratings.length > 0 ? `${avgRating.toFixed(2)} / 5 (${ratings.length} ratings)` : 'No ratings yet'}</div>
-          </div>
-          <div style={{marginTop: 18, textAlign: 'center'}}>
-            <div style={{fontSize: 19, marginBottom: 10, color: '#6d28d9', fontWeight: 600}}>Leave a Rating:</div>
-            <StarRating value={rating} onChange={setRating} max={5} />
-            <textarea
-              value={feedback}
-              onChange={e => setFeedback(e.target.value)}
-              placeholder="Leave feedback (optional)"
-              style={{width: '100%', minHeight: 70, borderRadius: 16, border: '2px solid #a259ec', background: '#f3e8ff', color: '#6d28d9', fontSize: 17, marginTop: 10, padding: 10, fontFamily: 'inherit', fontWeight: 500}}
-              disabled={submitting}
-            />
-            <button
-              style={{marginTop: 14, background: 'linear-gradient(90deg, #a259ec 0%, #6d28d9 100%)', color: 'white', border: 'none', borderRadius: 20, fontSize: 19, fontWeight: 700, padding: '10px 32px', cursor: 'pointer', boxShadow: '0 2px 12px rgba(162,89,236,0.18)', outline: 'none', transition: 'background 0.2s'}}
-              onClick={handleSubmitRating}
-              disabled={submitting || !rating}
-            >
-              Submit Rating
-            </button>
-          </div>
-        </div>
-        <div style={{position: 'absolute', left: 56, top: 56}}>
-          <button
-            style={{
-              background: 'linear-gradient(90deg, #a259ec 0%, #6d28d9 100%)',
-              color: 'white',
-              border: 'none',
-              borderRadius: 20,
-              fontSize: 22,
-              fontWeight: 700,
-              padding: '12px 36px',
-              cursor: 'pointer',
-              boxShadow: '0 2px 12px rgba(162,89,236,0.18)',
-              outline: 'none',
-              transition: 'background 0.2s',
-              letterSpacing: 1
-            }}
-            onClick={() => setShowRequestModal(true)}
-          >
-            Request
-          </button>
-        </div>
-        {/* Modal Popup for Skill Swap Request */}
-        {showRequestModal && (
-          <div style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            width: '100vw',
-            height: '100vh',
-            background: 'rgba(0,0,0,0.5)',
-            zIndex: 1000,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-            onClick={() => setShowRequestModal(false)}
-          >
-            <div
-              style={{
-                background: 'linear-gradient(120deg, #18181b 60%, #a259ec 100%)',
-                color: 'white',
-                border: '3px solid #a259ec',
-                borderRadius: 28,
-                padding: '40px 36px 36px 36px',
-                minWidth: 420,
-                maxWidth: '90vw',
-                boxShadow: '0 8px 40px rgba(0,0,0,0.18)',
-                position: 'relative',
-                fontFamily: 'Inter, Segoe UI, Arial, sans-serif',
-              }}
-              onClick={e => e.stopPropagation()}
-            >
-              <button
-                style={{position: 'absolute', top: 12, right: 18, background: 'none', border: 'none', color: 'white', fontSize: 32, cursor: 'pointer'}}
-                onClick={() => setShowRequestModal(false)}
-                aria-label="Close"
-              >×</button>
-              <form onSubmit={handleRequestSubmit}>
-                <div style={{marginBottom: 28}}>
-                  <label style={{fontSize: 22, marginBottom: 10, display: 'block', fontWeight: 600}}>Choose one of your offered skills</label>
-                  <select
-                    value={requestOfferedSkill}
-                    onChange={e => setRequestOfferedSkill(e.target.value)}
-                    style={{width: '100%', fontSize: 20, borderRadius: 14, padding: '12px 18px', border: '2px solid #a259ec', background: 'rgba(255,255,255,0.08)', color: 'white', marginTop: 8, fontWeight: 600}}
-                    required
-                  >
-                    <option value="" disabled>Select a skill</option>
-                    {(currentUserProfile?.skillsOffered || []).map(skill => (
-                      <option key={skill} value={skill}>{skill}</option>
-                    ))}
-                  </select>
-                </div>
-                <div style={{marginBottom: 28}}>
-                  <label style={{fontSize: 22, marginBottom: 10, display: 'block', fontWeight: 600}}>Choose one of their wanted skills</label>
-                  <select
-                    value={requestWantedSkill}
-                    onChange={e => setRequestWantedSkill(e.target.value)}
-                    style={{width: '100%', fontSize: 20, borderRadius: 14, padding: '12px 18px', border: '2px solid #a259ec', background: 'rgba(255,255,255,0.08)', color: 'white', marginTop: 8, fontWeight: 600}}
-                    required
-                  >
-                    <option value="" disabled>Select a skill</option>
-                    {(user?.skillsWanted || []).map(skill => (
-                      <option key={skill} value={skill}>{skill}</option>
-                    ))}
-                  </select>
-                </div>
-                <div style={{marginBottom: 28}}>
-                  <label style={{fontSize: 20, marginBottom: 10, display: 'block', fontWeight: 600}}>Message</label>
-                  <textarea
-                    value={requestMessage}
-                    onChange={e => setRequestMessage(e.target.value)}
-                    style={{width: '100%', minHeight: 100, borderRadius: 16, border: '2px solid #a259ec', background: 'rgba(255,255,255,0.08)', color: 'white', fontSize: 18, padding: 14, fontFamily: 'inherit', fontWeight: 500}}
-                    placeholder="Type your message..."
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 py-8 px-4">
+      <div className="max-w-6xl mx-auto">
+        {/* Back Button */}
+        <motion.button
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          onClick={() => navigate(-1)}
+          className="flex items-center gap-2 text-slate-600 hover:text-slate-800 mb-6 transition-colors duration-200"
+        >
+          <ArrowBackIcon />
+          <span className="font-medium">Back</span>
+        </motion.button>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-white rounded-3xl shadow-lg border border-slate-200 overflow-hidden"
+        >
+          {/* Header Section */}
+          <div className="bg-gradient-to-r from-slate-700 to-slate-800 text-white p-8">
+            <div className="flex flex-col lg:flex-row items-center gap-8">
+              {/* Profile Image */}
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                className="relative flex-shrink-0"
+              >
+                <div className="w-32 h-32 rounded-full border-4 border-white shadow-lg overflow-hidden bg-slate-100">
+                  <img
+                    src={user.photoURL || 'https://randomuser.me/api/portraits/men/32.jpg'}
+                    alt={user.username ? `${user.username}'s profile` : 'Profile'}
+                    className="w-full h-full object-cover"
                   />
                 </div>
-                <div style={{textAlign: 'center'}}>
-                  <button
-                    type="submit"
-                    disabled={requestLoading}
-                    style={{background: 'linear-gradient(90deg, #a259ec 0%, #6d28d9 100%)', color: 'white', border: 'none', borderRadius: 18, fontSize: 22, fontWeight: 700, padding: '10px 44px', cursor: 'pointer', marginTop: 8, boxShadow: '0 2px 12px rgba(162,89,236,0.18)'}}
-                  >
-                    {requestLoading ? 'Submitting...' : 'Submit'}
-                  </button>
+                <div className="absolute -bottom-2 -right-2 bg-green-500 w-6 h-6 rounded-full border-2 border-white"></div>
+              </motion.div>
+
+              {/* User Info */}
+              <div className="flex-1 text-center lg:text-left">
+                <h1 className="text-3xl font-bold mb-2">{user.username || 'No Name'}</h1>
+                {user.city && user.state && (
+                  <div className="flex items-center justify-center lg:justify-start gap-1 text-slate-300 mb-2">
+                    <LocationOnIcon fontSize="small" />
+                    {user.city}, {user.state}
+                  </div>
+                )}
+                <div className="flex items-center justify-center lg:justify-start gap-4 text-sm text-slate-300">
+                  {joinDate && (
+                    <div className="flex items-center gap-1">
+                      <CalendarMonthIcon fontSize="small" />
+                      Joined {joinDate}
+                    </div>
+                  )}
+                  <div className="flex items-center gap-1">
+                    <SwapHorizIcon fontSize="small" />
+                    {swaps} swaps
+                  </div>
                 </div>
-              </form>
+              </div>
+
+              {/* Stats */}
+              <div className="flex flex-col items-center gap-4">
+                <div className="text-center">
+                  <div className="flex items-center gap-1 mb-1">
+                    <StarIcon className="text-yellow-400" />
+                    <span className="font-bold text-xl">{avgRating.toFixed(1)}</span>
+                  </div>
+                  <div className="text-slate-300 text-sm">
+                    {ratings.length} rating{ratings.length !== 1 ? 's' : ''}
+                  </div>
+                </div>
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => setShowRequestModal(true)}
+                  className="bg-white text-slate-800 px-6 py-3 rounded-xl font-semibold shadow-md hover:shadow-lg transition-shadow duration-200 flex items-center gap-2"
+                >
+                  <SwapHorizIcon />
+                  Send Request
+                </motion.button>
+              </div>
             </div>
           </div>
-        )}
+
+          {/* Content Section */}
+          <div className="p-8">
+            {/* Bio */}
+            {user.bio && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="bg-slate-50 rounded-xl p-6 mb-8"
+              >
+                <h3 className="font-semibold text-slate-800 mb-3 flex items-center gap-2">
+                  <PersonIcon className="text-slate-600" />
+                  About
+                </h3>
+                <p className="text-slate-700 leading-relaxed">{user.bio}</p>
+              </motion.div>
+            )}
+
+            {/* Skills Grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+              {/* Skills Offered */}
+              <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-6"
+              >
+                <h3 className="font-semibold text-slate-800 mb-4 flex items-center gap-2">
+                  <SchoolIcon className="text-blue-600" />
+                  Skills Offered
+                </h3>
+                <div className="flex flex-wrap gap-2">
+                  {user.skillsOffered && user.skillsOffered.length > 0 ? 
+                    user.skillsOffered.map(skill => (
+                      <span key={skill} className="bg-blue-200 text-blue-800 px-3 py-1 rounded-lg text-sm font-medium">
+                        {skill}
+                      </span>
+                    )) : 
+                    <span className="text-slate-500 text-sm">No skills offered</span>
+                  }
+                </div>
+              </motion.div>
+
+              {/* Skills Wanted */}
+              <motion.div
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl p-6"
+              >
+                <h3 className="font-semibold text-slate-800 mb-4 flex items-center gap-2">
+                  <PsychologyIcon className="text-orange-600" />
+                  Looking For
+                </h3>
+                <div className="flex flex-wrap gap-2">
+                  {user.skillsWanted && user.skillsWanted.length > 0 ? 
+                    user.skillsWanted.map(skill => (
+                      <span key={skill} className="bg-orange-200 text-orange-800 px-3 py-1 rounded-lg text-sm font-medium">
+                        {skill}
+                      </span>
+                    )) : 
+                    <span className="text-slate-500 text-sm">No skills wanted</span>
+                  }
+                </div>
+              </motion.div>
+            </div>
+
+            {/* Availability */}
+            {user.availability && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-6 mb-8"
+              >
+                <h3 className="font-semibold text-slate-800 mb-4 flex items-center gap-2">
+                  <AccessTimeIcon className="text-green-600" />
+                  Availability
+                </h3>
+                <div className="flex flex-wrap gap-2">
+                  {user.availability.split(',').map((a, i) => (
+                    <span key={i} className="bg-green-200 text-green-800 px-3 py-1 rounded-lg text-sm font-medium">
+                      {a.trim()}
+                    </span>
+                  ))}
+                </div>
+              </motion.div>
+            )}
+
+            {/* Rating Section */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="bg-slate-50 rounded-xl p-6"
+            >
+              <h3 className="font-semibold text-slate-800 mb-4 flex items-center gap-2">
+                <RateReviewIcon className="text-slate-600" />
+                Leave a Rating
+              </h3>
+              
+              <div className="space-y-4">
+                <div className="flex items-center gap-4">
+                  <StarRating value={rating} onChange={setRating} />
+                  <span className="text-slate-600 text-sm">Click to rate</span>
+                </div>
+                
+                <textarea
+                  value={feedback}
+                  onChange={e => setFeedback(e.target.value)}
+                  placeholder="Share your experience with this user (optional)"
+                  className="w-full min-h-[100px] p-4 border border-slate-300 rounded-lg resize-none focus:ring-2 focus:ring-slate-400 focus:border-transparent"
+                  disabled={submitting}
+                />
+                
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={handleSubmitRating}
+                  disabled={submitting || !rating}
+                  className="bg-slate-700 text-white px-6 py-3 rounded-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-800 transition-colors duration-200 flex items-center gap-2"
+                >
+                  <SendIcon />
+                  Submit Rating
+                </motion.button>
+              </div>
+            </motion.div>
+          </div>
+        </motion.div>
+
+        {/* Request Modal */}
+        <AnimatePresence>
+          {showRequestModal && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
+              onClick={() => setShowRequestModal(false)}
+            >
+              <motion.div
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.9, opacity: 0 }}
+                className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6"
+                onClick={e => e.stopPropagation()}
+              >
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-xl font-bold text-slate-800">Send Skill Swap Request</h2>
+                  <button
+                    onClick={() => setShowRequestModal(false)}
+                    className="text-slate-400 hover:text-slate-600 transition-colors duration-200"
+                  >
+                    <CloseIcon />
+                  </button>
+                </div>
+
+                <form onSubmit={handleRequestSubmit} className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-2">
+                      Your Skill to Offer
+                    </label>
+                    <select
+                      value={requestOfferedSkill}
+                      onChange={e => setRequestOfferedSkill(e.target.value)}
+                      className="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-400 focus:border-transparent"
+                      required
+                    >
+                      <option value="">Select a skill</option>
+                      {(currentUserProfile?.skillsOffered || []).map(skill => (
+                        <option key={skill} value={skill}>{skill}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-2">
+                      Skill You Want to Learn
+                    </label>
+                    <select
+                      value={requestWantedSkill}
+                      onChange={e => setRequestWantedSkill(e.target.value)}
+                      className="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-400 focus:border-transparent"
+                      required
+                    >
+                      <option value="">Select a skill</option>
+                      {(user?.skillsWanted || []).map(skill => (
+                        <option key={skill} value={skill}>{skill}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-2">
+                      Message (Optional)
+                    </label>
+                    <textarea
+                      value={requestMessage}
+                      onChange={e => setRequestMessage(e.target.value)}
+                      placeholder="Introduce yourself and explain your request..."
+                      className="w-full p-3 border border-slate-300 rounded-lg resize-none focus:ring-2 focus:ring-slate-400 focus:border-transparent"
+                      rows={4}
+                    />
+                  </div>
+
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    type="submit"
+                    disabled={requestLoading}
+                    className="w-full bg-slate-700 text-white py-3 rounded-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-800 transition-colors duration-200 flex items-center justify-center gap-2"
+                  >
+                    <SendIcon />
+                    {requestLoading ? 'Sending...' : 'Send Request'}
+                  </motion.button>
+                </form>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </div>
   );
