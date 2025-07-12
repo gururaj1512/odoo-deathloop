@@ -67,71 +67,223 @@ function MyRequests() {
   const totalPages = Math.ceil(requests.length / pageSize);
   const pagedRequests = requests.slice((page-1)*pageSize, page*pageSize);
 
-  if (loading) return <div style={{color: 'white', textAlign: 'center', marginTop: 40, fontFamily: HAND_FONT, fontSize: 28}}>Loading...</div>;
+  if (loading) return <div style={{color: '#666', textAlign: 'center', marginTop: 40, fontFamily: HAND_FONT, fontSize: 20}}>Loading...</div>;
 
   return (
-    <div style={{background: '#111', minHeight: '100vh', padding: '48px 0', fontFamily: HAND_FONT}}>
-      <div style={{maxWidth: 900, margin: '0 auto'}}>
-        <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 32}}>
-          <h2 style={{color: 'white', fontSize: 38, fontWeight: 800, letterSpacing: 1, fontFamily: HAND_FONT, marginLeft: 8}}>My Requests</h2>
+    <div style={{background: 'linear-gradient(120deg, #f8fafc 0%, #f3e8ff 100%)', minHeight: '100vh', padding: '32px 16px', fontFamily: HAND_FONT}}>
+      <div style={{maxWidth: '100vw', margin: '0 auto'}}>
+        <div style={{marginBottom: 32}}>
+          <h2 style={{color: '#333', fontSize: 32, fontWeight: 700, letterSpacing: 0.5, fontFamily: HAND_FONT, margin: 0}}>My Requests</h2>
         </div>
+        <div style={{
+          display: 'flex',
+          flexDirection: 'row',
+          gap: 32,
+          overflowX: 'auto',
+          paddingBottom: 24,
+          scrollbarWidth: 'none',
+          msOverflowStyle: 'none',
+        }}>
         {pagedRequests.map((req, i) => {
           const user = usersMap[req.fromUserId] || {};
-          const rating = user.ratings && user.ratings.length ? (user.ratings.reduce((a,b)=>a+(b.value||0),0)/user.ratings.length).toFixed(1) : '-';
+          const rating = user.ratings && user.ratings.length ? (user.ratings.reduce((a,b)=>a+(b.value||0),0)/user.ratings.length).toFixed(1) : '0.0';
           return (
             <div key={i} style={{
-              border: '3px solid #fff',
-              borderRadius: 32,
-              marginBottom: 40,
-              padding: 32,
-              background: 'transparent',
-              color: 'white',
-              position: 'relative',
-              boxShadow: '0 4px 32px rgba(255,255,255,0.08)',
+              background: 'white',
+              borderRadius: 16,
+              minWidth: 420,
+              maxWidth: 420,
+              marginBottom: 24,
+              padding: 24,
+              boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+              border: '1px solid #e0e0e0',
               fontFamily: HAND_FONT,
-              display: 'flex',
-              alignItems: 'center',
-              gap: 32,
+              position: 'relative',
+              flex: '0 0 auto',
             }}>
-              <div style={{flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
-                <div style={{width: 120, height: 120, border: '3px solid #fff', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', background: '#222', position: 'relative'}}>
-                  {user.photoURL ? (
-                    <img src={user.photoURL} alt="Profile" style={{width: '100%', height: '100%', objectFit: 'cover'}} />
-                  ) : (
-                    <span style={{color: 'white', fontSize: 20, position: 'absolute', textAlign: 'center', width: '100%'}}>Profile Photo</span>
-                  )}
+              {/* Header with profile and status */}
+              <div style={{display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 20}}>
+                <div style={{display: 'flex', alignItems: 'center', gap: 16}}>
+                  <div style={{width: 60, height: 60, borderRadius: '50%', overflow: 'hidden', background: '#f0f0f0', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+                    {user.photoURL ? (
+                      <img src={user.photoURL} alt="Profile" style={{width: '100%', height: '100%', objectFit: 'cover'}} />
+                    ) : (
+                      <span style={{color: '#999', fontSize: 14, textAlign: 'center'}}>No Photo</span>
+                    )}
+                  </div>
+                  <div>
+                    <div style={{fontSize: 20, fontWeight: 700, color: '#333', marginBottom: 4, fontFamily: HAND_FONT}}>{user.username || 'Unknown User'}</div>
+                    <div style={{color: '#666', fontSize: 14, fontFamily: HAND_FONT}}>⭐ {rating} rating</div>
+                  </div>
                 </div>
-                <div style={{marginTop: 8, color: 'white', fontSize: 20, fontFamily: HAND_FONT}}>rating {rating}/5</div>
+                <div style={{
+                  background: '#fff3cd',
+                  color: '#856404',
+                  padding: '6px 12px',
+                  borderRadius: 16,
+                  fontSize: 14,
+                  fontWeight: 600,
+                  fontFamily: HAND_FONT,
+                  border: '1px solid #ffeaa7'
+                }}>
+                  Pending
+                </div>
               </div>
-              <div style={{flex: 1}}>
-                <div style={{fontSize: 28, fontWeight: 700, marginBottom: 8, color: 'white', fontFamily: HAND_FONT}}>{user.username || 'name'}</div>
-                <div style={{marginBottom: 8, display: 'flex', alignItems: 'center', gap: 12}}>
-                  <span style={{color: '#22c55e', fontWeight: 600, fontSize: 20, fontFamily: HAND_FONT}}>Skills Offered =&gt;</span>
-                  <span style={{display: 'inline-block', background: 'transparent', border: '2.5px solid #fff', borderRadius: 18, padding: '4px 18px', color: 'white', fontSize: 18, fontFamily: HAND_FONT, marginLeft: 8}}>{req.offeredSkill}</span>
-                </div>
-                <div style={{marginBottom: 8, display: 'flex', alignItems: 'center', gap: 12}}>
-                  <span style={{color: '#38bdf8', fontWeight: 600, fontSize: 20, fontFamily: HAND_FONT}}>Skill wanted =&gt;</span>
-                  <span style={{display: 'inline-block', background: 'transparent', border: '2.5px solid #fff', borderRadius: 18, padding: '4px 18px', color: 'white', fontSize: 18, fontFamily: HAND_FONT, marginLeft: 8}}>{req.wantedSkill}</span>
+
+              {/* Skills section */}
+              <div style={{marginBottom: 20}}>
+                <div style={{display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12}}>
+                  <span style={{color: '#ff6b35', fontSize: 16, fontWeight: 600, fontFamily: HAND_FONT}}>🎯 They offer:</span>
+                  <span style={{
+                    background: '#ff6b35',
+                    color: 'white',
+                    padding: '4px 12px',
+                    borderRadius: 20,
+                    fontSize: 14,
+                    fontWeight: 600,
+                    fontFamily: HAND_FONT
+                  }}>
+                    {req.offeredSkill}
+                  </span>
                 </div>
               </div>
-              <div style={{display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 16, minWidth: 180}}>
-                <div style={{fontSize: 28, fontWeight: 800, color: '#7c7c9a', fontFamily: HAND_FONT, marginBottom: 8}}>Status <span>Pending</span></div>
-                <div style={{display: 'flex', gap: 18, marginTop: 8}}>
-                  <button onClick={() => handleAccept(req._idx)} style={{background: 'none', border: '2.5px solid #22c55e', color: '#22c55e', fontWeight: 800, fontSize: 26, fontFamily: HAND_FONT, borderRadius: 12, padding: '4px 24px', cursor: 'pointer', transition: 'background 0.2s', outline: 'none', boxShadow: '0 2px 8px #22c55e33'}} onMouseOver={e => e.target.style.background='#22c55e22'} onMouseOut={e => e.target.style.background='none'}>Accept</button>
-                  <button onClick={() => handleReject(req._idx)} style={{background: 'none', border: '2.5px solid #ef4444', color: '#ef4444', fontWeight: 800, fontSize: 26, fontFamily: HAND_FONT, borderRadius: 12, padding: '4px 24px', cursor: 'pointer', transition: 'background 0.2s', outline: 'none', boxShadow: '0 2px 8px #ef444433'}} onMouseOver={e => e.target.style.background='#ef444422'} onMouseOut={e => e.target.style.background='none'}>Reject</button>
+
+              {/* Message section */}
+              <div style={{marginBottom: 20}}>
+                <div style={{color: '#666', fontSize: 14, fontWeight: 600, marginBottom: 8, fontFamily: HAND_FONT}}>💬 Message:</div>
+                <div style={{color: '#333', fontSize: 16, fontFamily: HAND_FONT, lineHeight: 1.5}}>
+                  {req.message || `Hi I'd love to learn ${req.wantedSkill} from you in exchange for ${req.offeredSkill} tutoring.`}
                 </div>
+              </div>
+
+              {/* Timestamp */}
+              <div style={{color: '#999', fontSize: 12, marginBottom: 20, fontFamily: HAND_FONT}}>
+                📅 Requested on {req.timestamp ? new Date(req.timestamp.seconds * 1000).toLocaleDateString() : 'Unknown date'}
+              </div>
+
+              {/* Action buttons */}
+              <div style={{display: 'flex', gap: 12, justifyContent: 'flex-end'}}>
+                <button 
+                  onClick={() => handleAccept(req._idx)} 
+                  style={{
+                    background: '#28a745',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: 8,
+                    padding: '12px 24px',
+                    fontSize: 16,
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    fontFamily: HAND_FONT,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 8,
+                    transition: 'background 0.2s'
+                  }}
+                  onMouseOver={e => e.target.style.background='#218838'}
+                  onMouseOut={e => e.target.style.background='#28a745'}
+                >
+                  ✓ Accept
+                </button>
+                <button 
+                  onClick={() => handleReject(req._idx)} 
+                  style={{
+                    background: '#dc3545',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: 8,
+                    padding: '12px 24px',
+                    fontSize: 16,
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    fontFamily: HAND_FONT,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 8,
+                    transition: 'background 0.2s'
+                  }}
+                  onMouseOver={e => e.target.style.background='#c82333'}
+                  onMouseOut={e => e.target.style.background='#dc3545'}
+                >
+                  ✕ Reject
+                </button>
               </div>
             </div>
           );
         })}
+        </div>
+        <style>{`
+          div[style*='overflow-x: auto']::-webkit-scrollbar { display: none; }
+        `}</style>
+        {/* Empty state */}
+        {requests.length === 0 && (
+          <div style={{
+            textAlign: 'center',
+            padding: 48,
+            color: '#666',
+            fontFamily: HAND_FONT,
+            fontSize: 18
+          }}>
+            No requests yet. When someone wants to learn from you, their requests will appear here.
+          </div>
+        )}
         {/* Pagination */}
         {totalPages > 1 && (
           <div style={{display: 'flex', justifyContent: 'center', gap: 16, marginTop: 32, fontFamily: HAND_FONT}}>
-            <button onClick={() => setPage(p => Math.max(1, p-1))} disabled={page === 1} style={{background: 'none', border: 'none', color: 'white', fontSize: 36, cursor: 'pointer', opacity: page === 1 ? 0.4 : 1, fontFamily: HAND_FONT}}>&lt;</button>
+            <button 
+              onClick={() => setPage(p => Math.max(1, p-1))} 
+              disabled={page === 1} 
+              style={{
+                background: 'white',
+                border: '1px solid #ddd',
+                color: '#333',
+                fontSize: 16,
+                cursor: 'pointer',
+                opacity: page === 1 ? 0.4 : 1,
+                fontFamily: HAND_FONT,
+                padding: '8px 16px',
+                borderRadius: 8
+              }}
+            >
+              &lt; Previous
+            </button>
             {[...Array(totalPages)].map((_, i) => (
-              <button key={i} onClick={() => setPage(i+1)} style={{background: 'none', border: 'none', color: page === i+1 ? '#fff' : '#aaa', fontSize: 32, fontWeight: 800, cursor: 'pointer', fontFamily: HAND_FONT, textDecoration: page === i+1 ? 'underline' : 'none'}}>{i+1}</button>
+              <button 
+                key={i} 
+                onClick={() => setPage(i+1)} 
+                style={{
+                  background: page === i+1 ? '#007bff' : 'white',
+                  border: '1px solid #ddd',
+                  color: page === i+1 ? 'white' : '#333',
+                  fontSize: 16,
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  fontFamily: HAND_FONT,
+                  padding: '8px 16px',
+                  borderRadius: 8,
+                  minWidth: 40
+                }}
+              >
+                {i+1}
+              </button>
             ))}
-            <button onClick={() => setPage(p => Math.min(totalPages, p+1))} disabled={page === totalPages} style={{background: 'none', border: 'none', color: 'white', fontSize: 36, cursor: 'pointer', opacity: page === totalPages ? 0.4 : 1, fontFamily: HAND_FONT}}>&gt;</button>
+            <button 
+              onClick={() => setPage(p => Math.min(totalPages, p+1))} 
+              disabled={page === totalPages} 
+              style={{
+                background: 'white',
+                border: '1px solid #ddd',
+                color: '#333',
+                fontSize: 16,
+                cursor: 'pointer',
+                opacity: page === totalPages ? 0.4 : 1,
+                fontFamily: HAND_FONT,
+                padding: '8px 16px',
+                borderRadius: 8
+              }}
+            >
+              Next &gt;
+            </button>
           </div>
         )}
       </div>
@@ -139,4 +291,4 @@ function MyRequests() {
   );
 }
 
-export default MyRequests; 
+export default MyRequests;

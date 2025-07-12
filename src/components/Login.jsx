@@ -16,6 +16,8 @@ function Login() {
     setError('');
     const result = await signIn(email, password);
     if (result.success) {
+      // Store user id as token in localStorage
+      localStorage.setItem('token', result.user.uid);
       navigate('/dashboard');
     } else {
       setError(result.error);

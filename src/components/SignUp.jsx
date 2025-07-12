@@ -36,6 +36,8 @@ function SignUp() {
     const selectedRole = role || 'user';
     const result = await signUp(email, password, selectedRole, username);
     if (result.success) {
+      // Store user id as token in localStorage
+      localStorage.setItem('token', result.user.uid);
       navigate('/dashboard');
     } else {
       setError(result.error);

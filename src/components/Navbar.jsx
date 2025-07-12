@@ -1,20 +1,25 @@
 import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import Avatar from '@mui/material/Avatar';
 import HomeOutlinedIcon from '@mui/icons-material/HomeOutlined';
 import GroupsOutlinedIcon from '@mui/icons-material/GroupsOutlined';
 import ChatBubbleOutlineOutlinedIcon from '@mui/icons-material/ChatBubbleOutlineOutlined';
 import AdminPanelSettingsOutlinedIcon from '@mui/icons-material/AdminPanelSettingsOutlined';
+import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 
 const navLinks = [
   { label: 'Home', to: '/dashboard', icon: <HomeOutlinedIcon fontSize="small" /> },
-  { label: 'Browse', to: '/browse', icon: <GroupsOutlinedIcon fontSize="small" /> },
-  { label: 'Requests', to: '/requests', icon: <ChatBubbleOutlineOutlinedIcon fontSize="small" /> },
+  { label: 'Browse', to: '/dashboard', icon: <GroupsOutlinedIcon fontSize="small" /> },
+  { label: 'Requests', to: '/my-requests', icon: <ChatBubbleOutlineOutlinedIcon fontSize="small" /> },
+  { label: 'Friends', to: '/friends', icon: <ChatBubbleOutlineOutlinedIcon fontSize="small" /> },
+  { label: 'AI Skill Suggest', to: '/ai-skill-suggest', icon: <AutoAwesomeIcon fontSize="small" /> },
+  { label: 'Roadmap', to: '/roadmap', icon: <AutoAwesomeIcon fontSize="small" /> },
   { label: 'Admin', to: '/admin', icon: <AdminPanelSettingsOutlinedIcon fontSize="small" /> },
 ];
 
 function Navbar({ user, userRole, userData }) {
   const location = useLocation();
+  const navigate = useNavigate();
 
   return (
     <nav className="sticky top-0 w-full bg-white border-b border-gray-200 z-50">
@@ -29,9 +34,8 @@ function Navbar({ user, userRole, userData }) {
         {/* Nav Links */}
         <div className="flex-1 flex items-center justify-center gap-2">
           {navLinks.map(link => {
-            // Only show Admin if userRole is admin
             if (link.label === 'Admin' && userRole !== 'admin') return null;
-            const isActive = location.pathname === link.to;
+            const isActive = location.pathname.startsWith(link.to) && link.to !== '/dashboard' ? true : location.pathname === link.to;
             return (
               <Link
                 key={link.label}
@@ -47,7 +51,10 @@ function Navbar({ user, userRole, userData }) {
           })}
         </div>
         {/* Profile */}
-        <div className="flex items-center gap-2 min-w-[160px] justify-end">
+        <div
+          className="flex items-center gap-2 min-w-[160px] justify-end cursor-pointer"
+          onClick={() => navigate('/profile')}
+        >
           <Avatar
             src={userData?.photoURL || 'https://randomuser.me/api/portraits/men/32.jpg'}
             alt="Profile"

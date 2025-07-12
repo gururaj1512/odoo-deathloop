@@ -6,7 +6,8 @@
  * - All your fields (name, email, state, city, location, skills, availability, profile status)
  */
 import React, { useEffect, useState } from 'react';
-import { getCurrentUser, getUserData, setUserProfile } from '../firebase';
+import { getCurrentUser, getUserData, setUserProfile, logOut } from '../firebase';
+import { useNavigate } from 'react-router-dom';
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
@@ -74,6 +75,7 @@ function UserProfile() {
   const [skillWantedInput, setSkillWantedInput] = useState('');
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const u = getCurrentUser();
@@ -157,6 +159,12 @@ function UserProfile() {
     setUploading(false);
   };
 
+  const handleLogout = async () => {
+    localStorage.removeItem('token');
+    await logOut();
+    navigate('/login');
+  };
+
   const stateOptions = Object.keys(STATES_AND_CITIES);
   const cityOptions = profile.state ? STATES_AND_CITIES[profile.state] : [];
 
@@ -222,6 +230,16 @@ function UserProfile() {
                 Cancel
               </Button>
             )}
+            {/* Logout Button */}
+            <Button
+              variant="outlined"
+              color="error"
+              size="large"
+              onClick={handleLogout}
+              className="rounded-xl font-semibold shadow"
+            >
+              Logout
+            </Button>
           </div>
         </div>
         <div className="w-full px-8 py-8">
