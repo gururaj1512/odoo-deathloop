@@ -9,6 +9,8 @@ import SkillSwap from './components/SkillSwap.jsx';
 import MyRequests from './components/MyRequests.jsx';
 import AllFriends from './components/AllFriends.jsx';
 import Chat from './components/Chat.jsx';
+import Roadmap from './components/Roadmap.jsx';
+import Chatbot from './components/Chatbot.jsx';
 
 function App() {
   return (
@@ -22,6 +24,8 @@ function App() {
         <Route path="/skillswap/:userId" element={<SkillSwap />} />
         <Route path="/my-requests" element={<MyRequests />} />
         <Route path="/friends" element={<AllFriends />} />
+         <Route path="/roadmap" element={<Roadmap />} />
+         <Route path="/chatbot" element={<Chatbot />} />
         <Route path="/chat/:friendId" element={<Chat />} />
         {/* <Route path="*" element={<Navigate to="/login" replace />} /> */}
       </Routes>
