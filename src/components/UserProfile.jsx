@@ -7,6 +7,16 @@
  */
 import React, { useEffect, useState } from 'react';
 import { getCurrentUser, getUserData, setUserProfile } from '../firebase';
+import Avatar from '@mui/material/Avatar';
+import Button from '@mui/material/Button';
+import TextField from '@mui/material/TextField';
+import Chip from '@mui/material/Chip';
+import Select from '@mui/material/Select';
+import MenuItem from '@mui/material/MenuItem';
+import InputLabel from '@mui/material/InputLabel';
+import FormControl from '@mui/material/FormControl';
+import CircularProgress from '@mui/material/CircularProgress';
+import { motion } from 'framer-motion';
 
 const CLOUDINARY_UPLOAD_PRESET = 'sachin';
 const CLOUDINARY_CLOUD_NAME = 'drxliiejo';
@@ -150,152 +160,246 @@ function UserProfile() {
   const stateOptions = Object.keys(STATES_AND_CITIES);
   const cityOptions = profile.state ? STATES_AND_CITIES[profile.state] : [];
 
-  if (loading) return <div style={{textAlign:'center',marginTop:40, color: 'black'}}>Loading...</div>;
+  if (loading) return (
+    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 to-orange-50">
+      <CircularProgress color="primary" />
+    </div>
+  );
 
   return (
-    <div style={{
-      background: 'linear-gradient(120deg, #e0e7ff 0%, #fdf6e3 100%)',
-      padding: 0,
-      margin: 0,
-      minHeight: '100vh',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-    }}>
-      <div style={{
-        width: 1100,
-        background: '#fff',
-        borderRadius: 36,
-        boxShadow: '0 8px 40px rgba(0,0,0,0.10)',
-        padding: 0,
-        margin: '64px 0',
-        overflow: 'hidden',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        position: 'relative',
-      }}>
-        {/* Top purple gradient overlay */}
-        <div style={{
-          position: 'absolute',
-          left: 0,
-          top: 0,
-          width: '100%',
-          height: 80,
-          background: 'linear-gradient(to bottom, rgba(128,90,213,0.18) 0%, rgba(255,255,255,0) 100%)',
-          borderTopLeftRadius: 36,
-          borderTopRightRadius: 36,
-          zIndex: 1,
-          pointerEvents: 'none',
-        }} />
-        <div style={{padding: '32px 40px 0 40px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%'}}>
-          <div style={{display: 'flex', alignItems: 'center', gap: 24}}>
-            <img src={profile.photoURL || 'https://randomuser.me/api/portraits/men/32.jpg'} alt="Profile" style={{width: 80, height: 80, borderRadius: '50%', objectFit: 'cover', border: '2px solid #ddd'}} />
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-orange-50">
+      <motion.div
+        className="w-full max-w-5xl bg-white rounded-3xl shadow-2xl p-0 md:p-12 flex flex-col items-center relative"
+        initial={{ y: 40, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.6, type: 'spring' }}
+      >
+        {/* Top gradient overlay */}
+        <div className="absolute left-0 top-0 w-full h-20 rounded-t-3xl bg-gradient-to-b from-purple-400/20 to-transparent z-10 pointer-events-none" />
+        <div className="w-full flex flex-col md:flex-row items-center justify-between gap-8 px-8 pt-8">
+          <div className="flex items-center gap-6">
+            <Avatar
+              src={profile.photoURL || 'https://randomuser.me/api/portraits/men/32.jpg'}
+              alt="Profile"
+              sx={{ width: 80, height: 80, border: '2px solid #e5e7eb' }}
+            />
             <div>
-              <div style={{fontWeight: 700, fontSize: 22, color: '#222'}}>{profile.username || 'Your Name'}</div>
-              <div style={{color: '#888', fontSize: 16}}>{profile.email}</div>
+              <div className="font-bold text-2xl text-gray-900">{profile.username || 'Your Name'}</div>
+              <div className="text-gray-500 text-lg">{profile.email}</div>
             </div>
           </div>
-          <div>
+          <div className="flex gap-3">
             {editMode ? (
-              <button className="btn-primary" style={{padding: '10px 28px', fontWeight: 600, fontSize: 16, borderRadius: 12}} onClick={handleSave} disabled={uploading}>{uploading ? 'Saving...' : 'Save'}</button>
+              <Button
+                variant="contained"
+                color="primary"
+                size="large"
+                onClick={handleSave}
+                disabled={uploading}
+                className="rounded-xl font-semibold shadow"
+              >
+                {uploading ? 'Saving...' : 'Save'}
+              </Button>
             ) : (
-              <button className="btn-primary" style={{padding: '10px 28px', fontWeight: 600, fontSize: 16, borderRadius: 12}} onClick={handleEdit}>Edit</button>
+              <Button
+                variant="contained"
+                color="primary"
+                size="large"
+                onClick={handleEdit}
+                className="rounded-xl font-semibold shadow"
+              >
+                Edit
+              </Button>
             )}
             {editMode && (
-              <button className="btn-secondary" style={{marginLeft: 12, padding: '10px 20px', fontWeight: 600, fontSize: 16, borderRadius: 12}} onClick={handleCancel}>Cancel</button>
+              <Button
+                variant="outlined"
+                color="secondary"
+                size="large"
+                onClick={handleCancel}
+                className="rounded-xl font-semibold shadow"
+              >
+                Cancel
+              </Button>
             )}
           </div>
         </div>
-        <div style={{padding: '32px 40px', width: '100%'}}>
-          <div style={{display: 'flex', gap: 32}}>
+        <div className="w-full px-8 py-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {/* Left column */}
-            <div style={{flex: 1, display: 'flex', flexDirection: 'column', gap: 24}}>
-              <div>
-                <label style={{color:'#222', fontWeight:500, marginBottom:8, display:'block'}}>Full Name</label>
-                <input name="username" value={profile.username} onChange={handleChange} disabled={!editMode} style={{width:'100%',padding:14,borderRadius:18,border:'1px solid #e5e7eb',background:'#f8fafc',fontSize:16,color:'#222'}} placeholder="Your Name" />
-              </div>
-              <div>
-                <label style={{color:'#222', fontWeight:500, marginBottom:8, display:'block'}}>State</label>
-                <select name="state" value={profile.state} onChange={handleChange} disabled={!editMode} style={{width:'100%',padding:14,borderRadius:18,border:'1px solid #e5e7eb',background:'#f8fafc',fontSize:16,color:'#222'}}>
-                  <option value="">Select State</option>
+            <div className="flex flex-col gap-6">
+              <TextField
+                label="Full Name"
+                name="username"
+                value={profile.username}
+                onChange={handleChange}
+                disabled={!editMode}
+                fullWidth
+                variant="outlined"
+                size="medium"
+                placeholder="Your Name"
+              />
+              <FormControl fullWidth>
+                <InputLabel id="state-label">State</InputLabel>
+                <Select
+                  labelId="state-label"
+                  name="state"
+                  value={profile.state}
+                  onChange={handleChange}
+                  disabled={!editMode}
+                  label="State"
+                >
+                  <MenuItem value="">Select State</MenuItem>
                   {stateOptions.map(state => (
-                    <option key={state} value={state}>{state}</option>
+                    <MenuItem key={state} value={state}>{state}</MenuItem>
                   ))}
-                </select>
-              </div>
+                </Select>
+              </FormControl>
               <div>
-                <label style={{color:'#222', fontWeight:500, marginBottom:8, display:'block'}}>Skills Offered</label>
-                <div style={{display:'flex',gap:8,marginBottom:8}}>
-                  <input value={skillOfferedInput} onChange={e=>setSkillOfferedInput(e.target.value)} disabled={!editMode} placeholder="Add skill" style={{flex:1,padding:14,borderRadius:18,border:'1px solid #e5e7eb',background:'#f8fafc',fontSize:16,color:'#222'}} />
-                  <button type="button" className="btn-primary" onClick={handleAddSkillOffered} disabled={!editMode} style={{borderRadius: 12}}>Add</button>
+                <div className="mb-2 font-medium text-gray-700">Skills Offered</div>
+                <div className="flex gap-2 mb-2">
+                  <TextField
+                    value={skillOfferedInput}
+                    onChange={e => setSkillOfferedInput(e.target.value)}
+                    disabled={!editMode}
+                    placeholder="Add skill"
+                    size="small"
+                    className="flex-1"
+                  />
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={handleAddSkillOffered}
+                    disabled={!editMode || !skillOfferedInput.trim()}
+                  >
+                    Add
+                  </Button>
                 </div>
-                <div style={{display:'flex',flexWrap:'wrap',gap:8}}>
+                <div className="flex flex-wrap gap-2">
                   {profile.skillsOffered.map(skill => (
-                    <span key={skill} style={{background:'#e0e7ff',padding:'6px 16px',borderRadius:18,display:'flex',alignItems:'center',gap:4,color:'#222',fontWeight:500}}>
-                      {skill}
-                      {editMode && <button type="button" onClick={()=>handleRemoveSkillOffered(skill)} style={{marginLeft:4,background:'none',border:'none',color:'#f87171',cursor:'pointer',fontSize:18}}>×</button>}
-                    </span>
+                    <Chip
+                      key={skill}
+                      label={skill}
+                      color="primary"
+                      onDelete={editMode ? () => handleRemoveSkillOffered(skill) : undefined}
+                      className="mb-1"
+                    />
                   ))}
                 </div>
               </div>
-              <div>
-                <label style={{color:'#222', fontWeight:500, marginBottom:8, display:'block'}}>Availability</label>
-                <input name="availability" value={profile.availability} onChange={handleChange} disabled={!editMode} style={{width:'100%',padding:14,borderRadius:18,border:'1px solid #e5e7eb',background:'#f8fafc',fontSize:16,color:'#222'}} placeholder="e.g. Weekends, Evenings" />
-              </div>
+              <TextField
+                label="Availability"
+                name="availability"
+                value={profile.availability}
+                onChange={handleChange}
+                disabled={!editMode}
+                fullWidth
+                variant="outlined"
+                size="medium"
+                placeholder="e.g. Weekends, Evenings"
+              />
             </div>
             {/* Right column */}
-            <div style={{flex: 1, display: 'flex', flexDirection: 'column', gap: 24}}>
-              <div>
-                <label style={{color:'#222', fontWeight:500, marginBottom:8, display:'block'}}>Email</label>
-                <input name="email" value={profile.email} disabled readOnly style={{width:'100%',padding:14,borderRadius:18,border:'1px solid #e5e7eb',background:'#f8fafc',fontSize:16,color:'#888'}} />
-              </div>
-              <div>
-                <label style={{color:'#222', fontWeight:500, marginBottom:8, display:'block'}}>City</label>
-                <select name="city" value={profile.city} onChange={handleChange} disabled={!editMode || !profile.state} style={{width:'100%',padding:14,borderRadius:18,border:'1px solid #e5e7eb',background:'#f8fafc',fontSize:16,color:'#222'}}>
-                  <option value="">{profile.state ? 'Select City' : 'Select State First'}</option>
+            <div className="flex flex-col gap-6">
+              <TextField
+                label="Email"
+                name="email"
+                value={profile.email}
+                disabled
+                fullWidth
+                variant="outlined"
+                size="medium"
+              />
+              <FormControl fullWidth>
+                <InputLabel id="city-label">City</InputLabel>
+                <Select
+                  labelId="city-label"
+                  name="city"
+                  value={profile.city}
+                  onChange={handleChange}
+                  disabled={!editMode || !profile.state}
+                  label="City"
+                >
+                  <MenuItem value="">{profile.state ? 'Select City' : 'Select State First'}</MenuItem>
                   {cityOptions.map(city => (
-                    <option key={city} value={city}>{city}</option>
+                    <MenuItem key={city} value={city}>{city}</MenuItem>
                   ))}
-                </select>
-              </div>
+                </Select>
+              </FormControl>
               <div>
-                <label style={{color:'#222', fontWeight:500, marginBottom:8, display:'block'}}>Skills Wanted</label>
-                <div style={{display:'flex',gap:8,marginBottom:8}}>
-                  <input value={skillWantedInput} onChange={e=>setSkillWantedInput(e.target.value)} disabled={!editMode} placeholder="Add skill" style={{flex:1,padding:14,borderRadius:18,border:'1px solid #e5e7eb',background:'#f8fafc',fontSize:16,color:'#222'}} />
-                  <button type="button" className="btn-primary" onClick={handleAddSkillWanted} disabled={!editMode} style={{borderRadius: 12}}>Add</button>
+                <div className="mb-2 font-medium text-gray-700">Skills Wanted</div>
+                <div className="flex gap-2 mb-2">
+                  <TextField
+                    value={skillWantedInput}
+                    onChange={e => setSkillWantedInput(e.target.value)}
+                    disabled={!editMode}
+                    placeholder="Add skill"
+                    size="small"
+                    className="flex-1"
+                  />
+                  <Button
+                    variant="contained"
+                    color="secondary"
+                    onClick={handleAddSkillWanted}
+                    disabled={!editMode || !skillWantedInput.trim()}
+                  >
+                    Add
+                  </Button>
                 </div>
-                <div style={{display:'flex',flexWrap:'wrap',gap:8}}>
+                <div className="flex flex-wrap gap-2">
                   {profile.skillsWanted.map(skill => (
-                    <span key={skill} style={{background:'#fee2e2',padding:'6px 16px',borderRadius:18,display:'flex',alignItems:'center',gap:4,color:'#222',fontWeight:500}}>
-                      {skill}
-                      {editMode && <button type="button" onClick={()=>handleRemoveSkillWanted(skill)} style={{marginLeft:4,background:'none',border:'none',color:'#f87171',cursor:'pointer',fontSize:18}}>×</button>}
-                    </span>
+                    <Chip
+                      key={skill}
+                      label={skill}
+                      color="secondary"
+                      onDelete={editMode ? () => handleRemoveSkillWanted(skill) : undefined}
+                      className="mb-1"
+                    />
                   ))}
                 </div>
               </div>
-              <div>
-                <label style={{color:'#222', fontWeight:500, marginBottom:8, display:'block'}}>Profile Status</label>
-                <select name="profileStatus" value={profile.profileStatus} onChange={handleChange} disabled={!editMode} style={{width:'100%',padding:14,borderRadius:18,border:'1px solid #e5e7eb',background:'#f8fafc',fontSize:16,color:'#222'}}>
-                  <option value="public">Public</option>
-                  <option value="private">Private</option>
-                </select>
-              </div>
+              <FormControl fullWidth>
+                <InputLabel id="profile-status-label">Profile Status</InputLabel>
+                <Select
+                  labelId="profile-status-label"
+                  name="profileStatus"
+                  value={profile.profileStatus}
+                  onChange={handleChange}
+                  disabled={!editMode}
+                  label="Profile Status"
+                >
+                  <MenuItem value="public">Public</MenuItem>
+                  <MenuItem value="private">Private</MenuItem>
+                </Select>
+              </FormControl>
             </div>
           </div>
           {/* Location field below grid */}
-          <div style={{marginTop:32}}>
-            <label style={{color:'#222', fontWeight:500, marginBottom:8, display:'block'}}>Location</label>
-            <input name="location" value={profile.state && profile.city ? `${profile.state}, ${profile.city}` : ''} readOnly style={{width:'100%',padding:14,borderRadius:18,border:'1px solid #e5e7eb',background:'#f8fafc',fontSize:16,color:'#222'}} />
+          <div className="mt-8">
+            <TextField
+              label="Location"
+              name="location"
+              value={profile.state && profile.city ? `${profile.state}, ${profile.city}` : ''}
+              disabled
+              fullWidth
+              variant="outlined"
+              size="medium"
+            />
           </div>
           {/* Profile image upload below grid */}
-          <div style={{marginTop:32}}>
-            <label style={{color:'#222', fontWeight:500, marginBottom:8, display:'block'}}>Profile Image Upload</label>
-            <input type="file" accept="image/*" onChange={handleImageUpload} disabled={!editMode || uploading} style={{marginBottom:8, borderRadius: 12}} />
-            {uploading && <div style={{color:'#222'}}>Uploading...</div>}
+          <div className="mt-8">
+            <div className="mb-2 font-medium text-gray-700">Profile Image Upload</div>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleImageUpload}
+              disabled={!editMode || uploading}
+              className="mb-2"
+            />
+            {uploading && <div className="text-gray-700 flex items-center gap-2"><CircularProgress size={20} /> Uploading...</div>}
           </div>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }
