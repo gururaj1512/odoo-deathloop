@@ -1,2 +1,2 @@
 # odoo-deathloop
-ok now
+ok now sada
