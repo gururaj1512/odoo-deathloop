@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getCurrentUser, logOut, getUserRole, getUserData } from '../firebase';
+import Navbar from './Navbar.jsx';
 
 function Dashboard() {
   const [user, setUser] = useState(null);
@@ -37,16 +38,7 @@ function Dashboard() {
 
   return (
     <div className="dashboard-container">
-      <nav className="dashboard-nav">
-        <div className="nav-brand">
-          <h1>Dashboard</h1>
-        </div>
-        <div className="nav-user">
-          <span>Welcome, {userData?.username || user.email}</span>
-          <span className="user-role">({userRole || 'user'})</span>
-          <button id="logout-btn" className="btn-secondary" onClick={handleLogout}>Logout</button>
-        </div>
-      </nav>
+      <Navbar user={user} userRole={userRole} userData={userData} />
       <main className="dashboard-main">
         <div className="dashboard-header">
           <h2>Welcome to Your Dashboard</h2>

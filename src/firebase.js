@@ -87,3 +87,12 @@ export const getUserData = async (uid) => {
     return null;
   }
 }; 
+
+export const setUserProfile = async (uid, profile) => {
+  try {
+    await setDoc(doc(db, 'users', uid), profile, { merge: true });
+    return true;
+  } catch (error) {
+    return false;
+  }
+}; 
